@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # Application definition
 INSTALLED_APPS = [
+    'core',
     'comments',
     'streams',
     'views',

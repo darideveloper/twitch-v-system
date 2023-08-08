@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block userlinks %}
+<a href="/calendar/" target="_blank">Calendario</a> /
+{{ block.super }}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  :root {
+    --primary: #0F4C75;
+    --secondary: #17181D;
+    --link-fg:#78adcf;
+    --link-selected-fg: #F3EFE0;
+    --accent: #F3EFE0;
+    --selected-row: #0F4C7560;
+  }
+
+  /* Disable outline */
+  *:focus {
+    outline: none;
+    border: 2px solid var(--primary) !important;
+  }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+<link rel="shortcut icon" href="{% static 'app/imgs/favicon.png' %}" type="image/x-icon">
+<link rel="stylesheet" href="{% static 'app/css/admin.css' %}">
+{% endblock %}
+
