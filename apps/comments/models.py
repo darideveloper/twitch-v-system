@@ -33,7 +33,7 @@ class Comment (models.Model):
         verbose_name = 'Comentario de bots o mods'
         verbose_name_plural = 'Comentarios de bots y mods'
         
-    def str (self):
+    def __str__ (self):
         return self.comment
         
 class Mod (models.Model):
@@ -54,13 +54,23 @@ class Mod (models.Model):
 
 class CommentPhantom (models.Model):
     id = models.AutoField(primary_key=True)
-    comment_mod = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Comentario de un mod')
-    comment_res = models.CharField(max_length=200, verbose_name='Comentario de respuesta')
+    comment_mod = models.ForeignKey(
+        Comment, 
+        on_delete=models.CASCADE, 
+        verbose_name='Comentario de un mod'
+    )
+    comment_res = models.ForeignKey(
+        Comment, 
+        on_delete=models.CASCADE, 
+        verbose_name='Comentario de respuesta de bot', 
+        related_name='comment_res'
+    )
     last_update = models.DateTimeField(auto_now=True, verbose_name='Última actualización')
     
     class Meta:
         verbose_name = 'Comentario fantasma'
         verbose_name_plural = 'Comentarios fantasma'
+        unique_together = ('comment_mod', 'comment_res')
         
     def __str__(self):
         return f"{self.comment_mod} -> {self.comment_res}"
