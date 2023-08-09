@@ -11,8 +11,10 @@ def validate_token (function):
     @wraps(function)
     def wrap (self, request, *args, **kwargs):
         
+        # Get token from header
+        
         # Get token and base endpoints
-        token = request.GET.get ("token")
+        token = request.headers.get ("token")
         base_endpoint = request.path.split ("/")[1]
         token_found = Token.objects.filter (
             token=token,
@@ -25,7 +27,7 @@ def validate_token (function):
         else:
             return JsonResponse ({
                 "status": "error",
-                "message": "Token inválido",
+                "message": "Invalid token",
                 "data": [],
             }, status=401)
         
