@@ -16,9 +16,7 @@ class BaseJsonGetView (View):
     
     @validate_token
     def get (self, request):
-        
-        print ("get method")
-        
+                
         # Return wuqryset as json
         data = self.get_data()
         data_list = list(data.values())

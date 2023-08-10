@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from comments import models
 from core.views import BaseJsonGetView, BaseJsonGetDisableView
+from core.decorators import validate_token
 
 class Bots (BaseJsonGetDisableView):
     model = models.Bot     
@@ -14,6 +15,7 @@ class Mods (BaseJsonGetView):
 class CommentsPhantom (BaseJsonGetView):
     model = models.CommentPhantom
     
+    @validate_token
     def get (self, request):
         
         data = self.get_data()

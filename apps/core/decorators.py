@@ -10,9 +10,7 @@ def validate_token (function):
     
     @wraps(function)
     def wrap (self, request, *args, **kwargs):
-        
-        # Get token from header
-        
+                
         # Get token and base endpoints
         token = request.headers.get ("token")
         base_endpoint = request.path.split ("/")[1]
@@ -20,7 +18,7 @@ def validate_token (function):
             token=token,
             api=base_endpoint,
         )
-        
+            
         # Valkdate token and return data
         if token_found and token_found.first().is_active:
             return function(self, request, *args, **kwargs)
