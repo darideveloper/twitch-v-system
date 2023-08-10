@@ -3,8 +3,12 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 def get_next_hour (): 
+    # Deprecated
+    return None
+
+def get_now ():
     now = timezone.now().astimezone(timezone.get_default_timezone())
-    return now + timezone.timedelta(hours=1)
+    return now
 
 class Streamer (models.Model):
     auth_user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Usuario de autenticación')
@@ -16,9 +20,9 @@ class Streamer (models.Model):
 class Stream (models.Model):
     id = models.AutoField(primary_key=True)
     streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, verbose_name='Usuario de Twitch', null=True, blank=True)
-    date = models.DateField(verbose_name='Fecha', default=timezone.now)
-    start_time = models.TimeField(verbose_name='Hora de inicio', default=timezone.now)
-    end_time = models.TimeField(verbose_name='Hora de fin', default=get_next_hour)
+    date = models.DateField(verbose_name='Fecha', default=get_now)
+    start_time = models.TimeField(verbose_name='Hora de inicio', default=get_now)
+    end_time = models.TimeField(verbose_name='Hora de fin', default=get_now)
     is_active = models.BooleanField(default=True, verbose_name='Activo')
     
     class Meta:
