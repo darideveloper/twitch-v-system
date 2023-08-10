@@ -19,7 +19,7 @@ class Streamer (models.Model):
         
 class Stream (models.Model):
     id = models.AutoField(primary_key=True)
-    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, verbose_name='Usuario de Twitch', null=True, blank=True)
+    streamer = models.ForeignKey(Streamer, on_delete=models.CASCADE, verbose_name='Usuario de Twitch')
     date = models.DateField(verbose_name='Fecha', default=get_now)
     start_time = models.TimeField(verbose_name='Hora de inicio', default=get_now)
     end_time = models.TimeField(verbose_name='Hora de fin', default=get_now)
