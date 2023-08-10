@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'core',
     'comments',
     'streams',
-    'views',
+    'viwers',
     'settings',
     'corsheaders',
     'django.contrib.admin',
