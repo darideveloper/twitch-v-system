@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from apps.comments import urls as comments_urls
 from apps.streams import urls as streams_urls
+from apps.viwers import urls as viwers_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,4 +14,5 @@ urlpatterns = [
     # add apps urls
     path('comments/', include(comments_urls)),
     path('streams/', include(streams_urls)), 
+    path('viwers/', include(viwers_urls)), 
 ]

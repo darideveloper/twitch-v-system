@@ -1,3 +1,5 @@
-from django.shortcuts import render
+from core.views import BaseJsonGetDisableView
+from viwers import models
 
-# Create your views here.
+class Bots (BaseJsonGetDisableView):
+    model = models.Bot     

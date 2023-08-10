@@ -1,3 +1,26 @@
-from django.test import TestCase
+from viwers import models as viwers_models
+from core.tests import BaseTestApi
 
-# Create your tests here.
+API_BASE = "viwers"
+TOKEN = "token123*"
+
+class TestBotsView (BaseTestApi): 
+       
+    # Setup test 
+    api_base = API_BASE
+    endpoint = "bots"
+    token = TOKEN
+    model = viwers_models.Bot
+    auto_generate_data = True
+    
+    def test_invalid_token (self):
+        self.base_invalid_token ()
+    
+    def test_disable (self): 
+        self.base_disable ()
+ 
+    def test_get_no_models (self): 
+        self.base_get_no_models ()
+  
+    def test_get (self):
+        self.base_get ()
