@@ -3,12 +3,14 @@ from django.test import TestCase
 from settings import models as settings_models
 from comments import models
 
-class BaseTestApiGet (TestCase): 
+class BaseTestApi (TestCase): 
     
-    api_base = None
-    endpoint = None
-    models = None
-    token = None
+    api_base = ""
+    endpoint = ""
+    models = []
+    token = ""
+    model = None
+    auto_generate_data = False
     
     def get_api_base (self): 
         return self.api_base
@@ -25,7 +27,77 @@ class BaseTestApiGet (TestCase):
     def get_full_api (self): 
         return f"/{self.get_api_base()}/{self.get_endpoint()}/"
     
+    def get_model (self):
+        return self.model
+    
+    def get_auto_generate_data (self):
+        return self.auto_generate_data
+    
+    def get_model_fields (self) -> list:
+        """ Get model fields except relations and _state, id, last_update, created
+        
+        Returns:
+            list: List of model fields 
+        """
+        
+        fields = self.get_model()._meta.get_fields()
+        
+        # Filter only model fields
+        fields = list(filter(lambda row: not row.is_relation, fields))
+    
+        # Remove extra fields
+        extra_fields = ["_state", "id", "last_update", "created"]
+        fields = list(filter(lambda row: row.name not in extra_fields, fields))
+        
+        return fields
+    
     def setUp (self):
+        """ Setup headers and auto generate data """
+        
+        # Create models with random data
+        model = self.get_model()
+        auto_generate_data = self.get_auto_generate_data()
+        if auto_generate_data:
+            
+            fields = self.get_model_fields()
+            
+            auto_data = {}
+            fields_types = {
+                "CharField": "test",
+                "BooleanField": True,
+                "IntegerField": 1,
+                "FloatField": 1.0,
+                "DateTimeField": "2020-01-01 00:00:00",
+                "DateField": "2020-01-01",
+                "TimeField": "00:00:00",
+                "TextField": "test",
+                "ForeignKey": 1,
+                "ManyToManyField": 1,
+                "OneToOneField": 1,
+                "EmailField": "sample@gmail.com",
+                "URLField": "https://www.google.com",
+                "UUIDField": "123e4567-e89b-12d3-a456-426614174000",
+                "GenericIPAddressField": "192.168.1.254",
+                "JSONField": json.dumps({"test": "test"}),
+            }
+            for field in fields:
+                
+                # Get field data type
+                field_type = field.get_internal_type()
+                field_data = fields_types.get (field_type, None)
+                
+                if not field_data:
+                    raise Exception (f"Field type '{field_type}' not found, and auto_generate_data is True") 
+                
+                # Save field sample data
+                auto_data[field.name] = field_data
+                
+            # Create model instances with auto data
+            model_1 = model(**auto_data)
+            model_1.save()
+            model_2 = model(**auto_data)
+            model_2.save()
+            self.models = [model_1, model_2]
         
         # Create token and headers
         token = settings_models.Token (
@@ -56,12 +128,9 @@ class BaseTestApiGet (TestCase):
         response_json = response.json()
         
         # Get models columns
-        models = self.get_models()
-        fields = models[0].__dict__.keys()
+        fields = self.get_model_fields()
         
-        # Remove extra fields
-        skip_fields = ["_state", "id", "last_update", "created"]
-        fields = list (filter (lambda field: field not in skip_fields, fields))
+        models = self.get_models()
         
         # Validated response generals
         self.assertEqual(response.status_code, 200)
@@ -74,7 +143,7 @@ class BaseTestApiGet (TestCase):
         for row in response_json["data"]:
             for field in fields: 
                        
-                self.assertEqual(row[field], getattr(models[rows_counter], field))
+                self.assertEqual(row[field.name], getattr(models[rows_counter], field.name))
                 
             rows_counter += 1
             
@@ -99,6 +168,7 @@ class BaseTestApiGet (TestCase):
     def base_disable (self): 
         """ Test disable register """
         
+        model = self.get_model()
         model_id = 1
         
         response = self.client.delete(
@@ -106,6 +176,10 @@ class BaseTestApiGet (TestCase):
             json.dumps({"id": model_id}),
             content_type="application/json"
         )
+        
+        with open ("temp.html", "w") as file: 
+            file.write (str(response.content))
+        
         response_json = response.json()
         
         # Validate response
@@ -116,7 +190,7 @@ class BaseTestApiGet (TestCase):
         self.assertEqual(len(response_json["data"]), 0)
         
         # Validate models
-        bot1 = models.Bot.objects.get(id=model_id)
-        self.assertFalse(bot1.is_active)
+        model1 = model.objects.get(id=model_id)
+        self.assertFalse(model1.is_active)
         
         

@@ -43,9 +43,12 @@ class BaseJsonGetDisableView (BaseJsonGetView):
     
     @validate_token
     def delete (self, request):
+                
+        # Get id from jdon
+        data = json.loads(request.body)
+        json_id = data.get('id', None)
         
-        # query item
-        item = self.get_data().filter(id=1)
+        item = self.get_data().filter(id=json_id)
         if not item.exists():
             return JsonResponse({
                 'status': 'error',

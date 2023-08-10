@@ -2,39 +2,19 @@ import json
 from django.test import TestCase
 from comments import models as comments_models
 from settings import models as settings_models
-from core.tests import BaseTestApiGet
+from core.tests import BaseTestApi
 
 API_BASE = "comments"
 TOKEN = "token123*"
 
-class TestBotsView (BaseTestApiGet): 
-        
-    def setUp (self): 
-        
-        # Create models
-        bot1 = comments_models.Bot (
-            user="bot1user",
-            password="bot1pass",
-            cookies={"bot1cookie": "bot1cookie"},
-        )
-        bot1.save()
-        
-        bot2 = comments_models.Bot (
-            user="bot2user",
-            password="bot2pass",
-            cookies={"bot2cookie": "bot2cookie"},
-            is_active=False
-        )
-        bot2.save()
-        
-        self.models = [bot1, bot2]
-        
-        super().setUp()
-   
+class TestBotsView (BaseTestApi): 
+       
     # Setup test 
     api_base = API_BASE
     endpoint = "bots"
     token = TOKEN
+    model = comments_models.Bot
+    auto_generate_data = True
     
     def test_invalid_token (self):
         self.base_invalid_token ()
@@ -48,30 +28,14 @@ class TestBotsView (BaseTestApiGet):
     def test_disable (self): 
         self.base_disable ()
         
-class TestCommentsView (BaseTestApiGet): 
-        
-    def setUp (self): 
-        
-        # Create models
-        comment1 = comments_models.Comment (
-            comment="hello1", 
-        )
-        comment1.save()
-        
-        comment2 = comments_models.Comment (
-            comment="hello2", 
-            is_active=False
-        )
-        comment2.save()
-        
-        self.models = [comment1, comment2]
-        
-        super().setUp()
-   
+class TestCommentsView (BaseTestApi): 
+       
     # Setup test 
     api_base = API_BASE
     endpoint = "comments"
     token = TOKEN
+    model = comments_models.Comment
+    auto_generate_data = True
     
     def test_invalid_token (self):
         self.base_invalid_token ()
@@ -82,30 +46,14 @@ class TestCommentsView (BaseTestApiGet):
     def test_get_no_models (self): 
         self.base_get_no_models ()
         
-class TestModsView (BaseTestApiGet): 
-        
-    def setUp (self): 
-        
-        # Create models
-        mod1 = comments_models.Mod (
-            user="mod2", 
-        )
-        mod1.save()
-        
-        mod2 = comments_models.Mod (
-            user="mod2", 
-            is_active=False
-        )
-        mod2.save()
-        
-        self.models = [mod1, mod2]
-        
-        super().setUp()
-   
+class TestModsView (BaseTestApi): 
+
     # Setup test 
     api_base = API_BASE
     endpoint = "mods"
     token = TOKEN
+    model = comments_models.Mod
+    auto_generate_data = True
     
     def test_invalid_token (self):
         self.base_invalid_token ()
@@ -116,7 +64,7 @@ class TestModsView (BaseTestApiGet):
     def test_get_no_models (self): 
         self.base_get_no_models ()
         
-class TestCommentsPhamtomView (BaseTestApiGet): 
+class TestCommentsPhamtomView (BaseTestApi): 
         
     def setUp (self): 
         
@@ -151,6 +99,7 @@ class TestCommentsPhamtomView (BaseTestApiGet):
     api_base = API_BASE
     endpoint = "comments-phantom"
     token = TOKEN
+    model = comments_models.CommentPhantom
     
     def test_invalid_token (self):
         self.base_invalid_token ()
