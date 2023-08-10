@@ -8,6 +8,5 @@ class StreamerAdmin (admin.ModelAdmin):
 
 @admin.register(models.Stream)
 class StreamAdmin (admin.ModelAdmin):
-    list_display = ('streamer', 'datetime', 'is_active')
-    list_filter = ('is_active',)
-    search_fields = ('streamer',)
+    list_display = ('streamer', 'date', 'start_time', 'end_time', 'is_active')
+    list_filter = ('streamer', 'date', 'start_time', 'end_time', 'is_active')
