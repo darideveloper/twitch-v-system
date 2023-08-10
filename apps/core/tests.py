@@ -1,7 +1,6 @@
 import json
 from django.test import TestCase
-from settings import models as settings_models
-from comments import models
+from core import models as code_models
 
 class BaseTestApi (TestCase): 
     
@@ -100,7 +99,7 @@ class BaseTestApi (TestCase):
             self.models = [model_1, model_2]
         
         # Create token and headers
-        token = settings_models.Token (
+        token = code_models.Token (
             api=self.get_api_base(),
             token=self.get_token()
         )

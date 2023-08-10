@@ -1,5 +1,5 @@
 import os
-from settings.models import Token
+from core.models import Token
 from functools import wraps
 from django.http import JsonResponse
 
