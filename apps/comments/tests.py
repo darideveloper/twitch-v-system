@@ -1,7 +1,4 @@
-import json
-from django.test import TestCase
 from comments import models as comments_models
-from settings import models as settings_models
 from core.tests import BaseTestApi
 
 API_BASE = "comments"
@@ -18,15 +15,16 @@ class TestBotsView (BaseTestApi):
     
     def test_invalid_token (self):
         self.base_invalid_token ()
-        
-    def test_get (self):
-        self.base_get ()
-    
-    def test_get_no_models (self): 
-        self.base_get_no_models ()
     
     def test_disable (self): 
         self.base_disable ()
+ 
+    def test_get_no_models (self): 
+        self.base_get_no_models ()
+  
+    def test_get (self):
+        self.base_get ()
+    
         
 class TestCommentsView (BaseTestApi): 
        
@@ -39,13 +37,13 @@ class TestCommentsView (BaseTestApi):
     
     def test_invalid_token (self):
         self.base_invalid_token ()
+
+    def test_get_no_models (self): 
+        self.base_get_no_models ()
         
     def test_get (self):
         self.base_get ()
     
-    def test_get_no_models (self): 
-        self.base_get_no_models ()
-        
 class TestModsView (BaseTestApi): 
 
     # Setup test 
@@ -58,11 +56,11 @@ class TestModsView (BaseTestApi):
     def test_invalid_token (self):
         self.base_invalid_token ()
         
-    def test_get (self):
-        self.base_get ()
-    
     def test_get_no_models (self): 
         self.base_get_no_models ()
+    
+    def test_get (self):
+        self.base_get ()
         
 class TestCommentsPhamtomView (BaseTestApi): 
         
@@ -104,6 +102,9 @@ class TestCommentsPhamtomView (BaseTestApi):
     def test_invalid_token (self):
         self.base_invalid_token ()
     
+    def test_get_no_models (self): 
+        self.base_get_no_models ()
+    
     def test_get (self):
         
         response = self.client.get(self.get_full_api())
@@ -112,6 +113,7 @@ class TestCommentsPhamtomView (BaseTestApi):
         models = self.get_models()
         
         # Validated response generals
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['status'], 'ok')
         self.assertEqual(response_json['message'], 'Data found')        
         self.assertEqual(len(response_json["data"]), len(models))
@@ -125,5 +127,3 @@ class TestCommentsPhamtomView (BaseTestApi):
             self.comment_a.comment,
         ])
     
-    def test_get_no_models (self): 
-        self.base_get_no_models ()
