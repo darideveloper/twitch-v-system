@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 def get_next_hour (): 
-    now = timezone.now()
+    now = timezone.now().astimezone(timezone.get_default_timezone())
     return now + timezone.timedelta(hours=1)
 
 class Streamer (models.Model):
@@ -26,4 +26,4 @@ class Stream (models.Model):
         verbose_name_plural = 'Streams'
         
     def __str__ (self):
-        return f"{self.streamer} - {self.datetime}"
+        return f"{self.streamer} - {self.date} - {self.start_time}"
