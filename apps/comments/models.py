@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 from streams.models import Stream
 
 def get_default_cookies ():
