@@ -5,7 +5,7 @@ class Token (models.Model):
     apis = [
         ('comments', 'Comentarios'),
         ('streams', 'Streams'),
-        ('views', 'Vistas'),
+        ('viwers', 'Viwers'),
     ]
     
     id = models.AutoField(primary_key=True)
