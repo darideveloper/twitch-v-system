@@ -4,6 +4,11 @@ from django.http import JsonResponse
 from core.decorators import validate_token
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.shortcuts import redirect
+
+def redirect_admin (request):
+    # Redirect to admin page
+    return redirect('/admin/') 
 
 class BaseJsonGetView (View):
     """ Get data from model and return as json

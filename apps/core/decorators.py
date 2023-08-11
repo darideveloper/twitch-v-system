@@ -3,8 +3,6 @@ from core.models import Token
 from functools import wraps
 from django.http import JsonResponse
 
-DEBUG = os.getenv("DEBUG") == "True"
-
 def validate_token (function):
     """ View wrapper for return data only if the token it's valid """
     
