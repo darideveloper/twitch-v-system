@@ -87,4 +87,4 @@ class CommentHistory (models.Model):
         verbose_name_plural = 'Historial de comentarios'
         
     def __str__(self):
-        return f"{self.bot} - {self.comment_phantom__comment_res} - {self.datetime}"
+        return f"{self.bot} - {self.comment_phantom} - {self.datetime}"
