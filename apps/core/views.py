@@ -95,7 +95,6 @@ class BaseJsonPostView (View):
         data = json.loads(request.body)
         
         # Validate all fields in data
-        data_formated = {}
         for field in fields:
             
             if field.name in exclude_fields:
@@ -130,7 +129,7 @@ class BaseJsonPostView (View):
         # Return response
         return JsonResponse({
             'status': 'ok',
-            'message': 'Register disabled',
+            'message': 'Register created',
             'data': {
                 "id": register.id
             },
