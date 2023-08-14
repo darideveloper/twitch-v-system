@@ -1,6 +1,7 @@
 import json
 from django.test import TestCase
 from core import models as code_models
+from core.tools import get_model_fields
 
 class BaseTestApi (TestCase): 
     
@@ -32,24 +33,6 @@ class BaseTestApi (TestCase):
     def get_auto_generate_data (self):
         return self.auto_generate_data
     
-    def get_model_fields (self) -> list:
-        """ Get model fields except relations and _state, id, last_update, created
-        
-        Returns:
-            list: List of model fields 
-        """
-        
-        fields = self.get_model()._meta.get_fields()
-        
-        # Filter only model fields
-        fields = list(filter(lambda row: not row.is_relation, fields))
-    
-        # Remove extra fields
-        extra_fields = ["_state", "id", "last_update", "created"]
-        fields = list(filter(lambda row: row.name not in extra_fields, fields))
-        
-        return fields
-    
     def setUp (self):
         """ Setup headers and auto generate data """
         
@@ -58,7 +41,7 @@ class BaseTestApi (TestCase):
         auto_generate_data = self.get_auto_generate_data()
         if auto_generate_data:
             
-            fields = self.get_model_fields()
+            fields = get_model_fields(model)
             
             auto_data = {}
             fields_types = {
@@ -126,10 +109,10 @@ class BaseTestApi (TestCase):
         response = self.client.get(self.get_full_api())
         response_json = response.json()
         
-        # Get models columns
-        fields = self.get_model_fields()
-        
+        # Get models and columns
         models = self.get_models()
+        model = self.get_model()
+        fields = get_model_fields(model)
         
         # Validated response generals
         self.assertEqual(response.status_code, 200)
