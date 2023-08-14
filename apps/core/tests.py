@@ -175,7 +175,7 @@ class BaseTestApi (TestCase):
         """ Test disable register """
         
         model = self.__get_model__()
-        model_id = 1
+        model_id = self.__get_registers__()[0].id
         
         response = self.client.delete(
             self.__get_full_api__(),
