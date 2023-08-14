@@ -45,7 +45,7 @@ class TestStreams (BaseTestApi):
         )
         self.stream_outdated.save ()
         
-        self.models = [self.stream_now, self.stream_outdated]
+        self.registers = [self.stream_now, self.stream_outdated]
         
         super().setUp()
     
@@ -61,21 +61,21 @@ class TestStreams (BaseTestApi):
     def test_disable (self): 
         self.base_disable ()
     
-    def test_get_no_models (self): 
-        self.base_get_no_models ()
+    def test_get_no_registers (self): 
+        self.base_get_no_registers ()
     
     def test_get (self): 
          
         response = self.client.get(self.get_full_api())
         response_json = response.json()
         
-        models = self.get_models()
+        registers = self.get_registers()
         
         # Validate response generals
         self.assertEqual(response.status_code, 200)
         # self.assertEqual(response_json['status'], 'ok')
         self.assertEqual(response_json['message'], 'Data found')
-        self.assertEqual(len(response_json['data']), len(models) - 1)
+        self.assertEqual(len(response_json['data']), len(registers) - 1)
         
         # Validate response
         self.assertEqual(response_json['data'][0]['streamer'], self.stream_now.streamer.twitch_user)

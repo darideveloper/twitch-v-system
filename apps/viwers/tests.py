@@ -19,8 +19,8 @@ class TestBotsView (BaseTestApi):
     def test_disable (self): 
         self.base_disable ()
  
-    def test_get_no_models (self): 
-        self.base_get_no_models ()
+    def test_get_no_registers (self): 
+        self.base_get_no_registers ()
   
     def test_get (self):
         self.base_get ()

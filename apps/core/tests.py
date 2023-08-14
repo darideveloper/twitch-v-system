@@ -7,7 +7,7 @@ class BaseTestApi (TestCase):
     
     api_base = ""
     endpoint = ""
-    models = []
+    registers = []
     token = ""
     model = None
     auto_generate_data = False
@@ -18,8 +18,8 @@ class BaseTestApi (TestCase):
     def get_endpoint (self): 
         return self.endpoint
     
-    def get_models (self): 
-        return self.models
+    def get_registers (self): 
+        return self.registers
     
     def get_token (self):
         return self.token
@@ -36,7 +36,7 @@ class BaseTestApi (TestCase):
     def setUp (self):
         """ Setup headers and auto generate data """
         
-        # Create models with random data
+        # Create registers with random data
         model = self.get_model()
         auto_generate_data = self.get_auto_generate_data()
         if auto_generate_data:
@@ -75,11 +75,11 @@ class BaseTestApi (TestCase):
                 auto_data[field.name] = field_data
                 
             # Create model instances with auto data
-            model_1 = model(**auto_data)
-            model_1.save()
-            model_2 = model(**auto_data)
-            model_2.save()
-            self.models = [model_1, model_2]
+            register_1 = model(**auto_data)
+            register_1.save()
+            register_2 = model(**auto_data)
+            register_2.save()
+            self.registers = [register_1, register_2]
         
         # Create token and headers
         token = code_models.Token (
@@ -109,8 +109,8 @@ class BaseTestApi (TestCase):
         response = self.client.get(self.get_full_api())
         response_json = response.json()
         
-        # Get models and columns
-        models = self.get_models()
+        # Get registers and columns
+        registers = self.get_registers()
         model = self.get_model()
         fields = get_model_fields(model)
         
@@ -118,23 +118,23 @@ class BaseTestApi (TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['status'], 'ok')
         self.assertEqual(response_json['message'], 'Data found')        
-        self.assertEqual(len(response_json["data"]), len(models))
+        self.assertEqual(len(response_json["data"]), len(registers))
         
-        # Validate response data (each field in each row of models)
+        # Validate response data (each field in each row of registers)
         rows_counter = 0
         for row in response_json["data"]:
             for field in fields: 
                        
-                self.assertEqual(row[field.name], getattr(models[rows_counter], field.name))
+                self.assertEqual(row[field.name], getattr(registers[rows_counter], field.name))
                 
             rows_counter += 1
             
-    def base_get_no_models (self):
+    def base_get_no_registers (self):
         """ Test query model without register """
         
-        # Delete models
-        models = self.get_models()
-        for model in models:
+        # Delete registers
+        registers = self.get_registers()
+        for model in registers:
             model.delete()
         
         response = self.client.get(self.get_full_api())
@@ -171,8 +171,8 @@ class BaseTestApi (TestCase):
         
         self.assertEqual(len(response_json["data"]), 0)
         
-        # Validate models
-        model1 = model.objects.get(id=model_id)
-        self.assertFalse(model1.is_active)
+        # Validate registers
+        register_1 = model.objects.get(id=model_id)
+        self.assertFalse(register_1.is_active)
         
         
