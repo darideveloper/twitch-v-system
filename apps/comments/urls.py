@@ -5,5 +5,6 @@ urlpatterns = [
     path ('bots/', views.Bots.as_view(), name='bots'),
     path ('comments/', views.Comments.as_view(), name='comments'),
     path ('mods/', views.Mods.as_view(), name='mods'),
+    path ('comments-history/', views.CommentsHistory.as_view(), name='mods'),
 ]
 
