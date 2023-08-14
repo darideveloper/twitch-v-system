@@ -24,16 +24,18 @@ class Bot (models.Model):
  
 class Comment (models.Model):
     id = models.AutoField(primary_key=True)
-    comment = models.CharField(max_length=200, verbose_name='Comentario de bot o mod')
+    category = models.CharField(max_length=200, verbose_name='Comentario del mod')
+    comments = models.TextField(verbose_name='Comentarios posibles de bot (uno por línea)')
     is_active = models.BooleanField(default=True, verbose_name='Activo')
     last_update = models.DateTimeField(auto_now=True, verbose_name='Última actualización')
     
     class Meta:
-        verbose_name = 'Comentario de bots o mods'
-        verbose_name_plural = 'Comentarios de bots y mods'
+        verbose_name = 'Comentario'
+        verbose_name_plural = 'Comentarios'
         
     def __str__ (self):
-        return self.comment
+        comments_num = len(self.comments.split('\n'))
+        return f"{self.category} ({comments_num} bot comments)"
         
 class Mod (models.Model):
     id = models.AutoField(primary_key=True)
@@ -50,35 +52,13 @@ class Mod (models.Model):
             return self.user
         else:
             return f"{self.user} (inactivo)"
-
-class CommentPhantom (models.Model):
-    id = models.AutoField(primary_key=True)
-    comment_mod = models.ForeignKey(
-        Comment, 
-        on_delete=models.CASCADE, 
-        verbose_name='Comentario de un mod'
-    )
-    comment_res = models.ForeignKey(
-        Comment, 
-        on_delete=models.CASCADE, 
-        verbose_name='Comentario de respuesta de bot', 
-        related_name='comment_res'
-    )
-    last_update = models.DateTimeField(auto_now=True, verbose_name='Última actualización')
-    
-    class Meta:
-        verbose_name = 'Comentario fantasma'
-        verbose_name_plural = 'Comentarios fantasma'
-        unique_together = ('comment_mod', 'comment_res')
-        
-    def __str__(self):
-        return f"{self.comment_mod} -> {self.comment_res}"
     
 class CommentHistory (models.Model):
     id = models.AutoField(primary_key=True)
     stream = models.ForeignKey(Stream, on_delete=models.CASCADE, verbose_name='Stream')
     bot = models.ForeignKey(Bot, on_delete=models.CASCADE, verbose_name='Bot')
-    comment_phantom = models.ForeignKey(CommentPhantom, on_delete=models.CASCADE, verbose_name='Comentario fantasma')
+    comment_mod = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Comentario')
+    comment_bot = models.CharField(max_length=200, verbose_name='Comentario de bot')
     mod = models.ForeignKey(Mod, on_delete=models.CASCADE, verbose_name='Moderador', null=True, blank=True)
     datetime = models.DateTimeField(auto_now=True, verbose_name='Fecha y hora')
     
@@ -87,4 +67,4 @@ class CommentHistory (models.Model):
         verbose_name_plural = 'Historial de comentarios'
         
     def __str__(self):
-        return f"{self.bot} - {self.comment_phantom} - {self.datetime}"
+        return f"{self.bot} - {self.comment_mod} - {self.datetime}"

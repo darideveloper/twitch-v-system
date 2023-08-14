@@ -13,7 +13,7 @@ class Mods (BaseJsonGetView):
     model = models.Mod
     
 class CommentsPhantom (BaseJsonGetView):
-    model = models.CommentPhantom
+    model = models.Comment
     
     @validate_token
     def get (self, request):
