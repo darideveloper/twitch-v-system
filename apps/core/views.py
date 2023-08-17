@@ -42,16 +42,24 @@ class BaseJsonGetView (View):
     
 
 @method_decorator(csrf_exempt, name='dispatch')
-class BaseJsonGetDisableView (BaseJsonGetView):
-    """ Get data from model, return as json 
-        and disable register from model
+class BaseJsonDisableView (View):
+    """ Disable register from model
     """
     
     @validate_token
     def delete (self, request):
-                
+        
+        # Try to load json
+        try:
+            data = json.loads(request.body)
+        except:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid json',
+                'data': []
+            }, status=400)
+         
         # Get id from json
-        data = json.loads(request.body)
         json_id = data.get('id', None)
         
         register = self.get_data().filter(id=json_id)
@@ -75,8 +83,7 @@ class BaseJsonGetDisableView (BaseJsonGetView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BaseJsonPostView (View):
-    """ Get data from madal, return as json
-        and create new register
+    """ Create new register
     """
     
     exclude_fields = []
@@ -91,8 +98,15 @@ class BaseJsonPostView (View):
         exclude_fields = self.get_exclude_fields()
         fields = get_model_fields(self.model, related_fields=True)
                 
-        # Get data from json
-        data = json.loads(request.body)
+        # Try to load json
+        try:
+            data = json.loads(request.body)
+        except:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid json',
+                'data': []
+            }, status=400)
         
         # Validate all fields in data
         for field in fields:
@@ -134,3 +148,25 @@ class BaseJsonPostView (View):
                 "id": register.id
             },
         })
+        
+class BaseJsonGetPostView (BaseJsonGetView, BaseJsonPostView):
+    """ Get data from model, return as json
+        and create new register
+    """
+    
+    pass
+
+class BaseJsonGetDisableView (BaseJsonGetView, BaseJsonDisableView):
+    """ Get data from model, return as json
+        and disable register
+    """
+    
+    pass
+
+class BaseJsonGetPostDisableView (BaseJsonGetView, BaseJsonPostView, BaseJsonDisableView):
+    """ Get data from model, return as json
+        create new register
+        and disable register
+    """
+    
+    pass
