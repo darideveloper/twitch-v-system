@@ -24,6 +24,9 @@ class TestBotsView (BaseTestApi):
     
     def test_disable (self): 
         self.base_disable ()
+    
+    def test_disable_not_found (self):
+        self.base_disable_not_found ()
  
     def test_get_no_registers (self): 
         self.base_get_no_registers ()
@@ -140,4 +143,7 @@ class TestCommentsHistoryView (BaseTestApi):
     
     def test_post (self):
         self.base_post ()
+    
+    def test_post_missing_fields (self):
+        self.base_post_missing_fields ()
     

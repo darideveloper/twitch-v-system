@@ -199,6 +199,28 @@ class BaseTestApi (TestCase):
         register_1 = model.objects.get(id=model_id)
         self.assertFalse(register_1.is_active)
         
+    def base_disable_not_found (self): 
+        """ Test disable register, with wrong id """
+        
+        model_id = 99999
+        
+        response = self.client.delete(
+            self.__get_full_api__(),
+            json.dumps({"id": model_id}),
+            content_type="application/json"
+        )
+        
+        with open ("temp.html", "w") as file: 
+            file.write (str(response.content))
+        
+        response_json = response.json()
+        
+        # Validate response
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['status'], 'error')
+        self.assertEqual(response_json['message'], 'Register not found')
+        self.assertEqual(len(response_json["data"]), 0)
+        
     def base_post (self): 
         """ Test add new register to model """
         
@@ -253,3 +275,21 @@ class BaseTestApi (TestCase):
         self.assertEqual(response_json['status'], 'ok')
         self.assertEqual(response_json['message'], 'Register created')
         self.assertEqual(response_json['data'], {"id": register_created[0].id})
+        
+    def base_post_missing_fields (self):
+        """ Test add new register to model, with missing fields """
+                    
+        response = self.client.post(
+            self.__get_full_api__(),
+            json.dumps({}),
+            content_type="application/json"
+        )
+        response_json = response.json()
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['status'], 'error')
+        self.assertIn ("Field", response_json['message'])
+        self.assertIn ("is required", response_json['message'])
+        self.assertEqual(len(response_json["data"]), 0)
+        
+        

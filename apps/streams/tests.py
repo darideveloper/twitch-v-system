@@ -63,6 +63,9 @@ class TestStreams (BaseTestApi):
         
     def test_disable (self): 
         self.base_disable ()
+        
+    def test_disable_not_found (self):
+        self.base_disable_not_found ()
     
     def test_get_no_registers (self): 
         self.base_get_no_registers ()
