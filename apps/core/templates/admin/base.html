@@ -22,5 +22,11 @@
 {% endblock %}
 
 {% block extrahead %}
+<!-- Add favicon -->
+{{ block.super }}
+<link rel="shortcut icon" href="{% static 'core/favicon.ico' %}">
+{% endblock %}
+
+{% block content %}
 {% endblock %}
 
