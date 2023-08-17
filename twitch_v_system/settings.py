@@ -82,7 +82,7 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
         'TEST': {
-            'NAME': 'test_comunidad_mc',
+            'NAME': 'test_twitch_v_system',
         },
     }
 }
