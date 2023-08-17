@@ -38,6 +38,57 @@ class BaseTestApi (TestCase):
     def __get_related_models__ (self):
         return self.related_models
     
+    def __get_request_data__ (self, include_id:bool=False):
+        """ Get data for test request in post or put method
+        
+        Args:
+            include_id (bool, optional): Include id field in data. Defaults to False.
+            
+        Returns:
+            dict: Data for test request (model fields)
+        """
+        
+        # Get model fields 
+        model = self.__get_model__()
+        fields_regular = get_model_fields(model, related_fields=False, get_id=include_id)
+        fields_all =  get_model_fields(model, related_fields=True)
+        fields_related = list(set(fields_all) - set(fields_regular))
+        related_models = self.__get_related_models__()
+        
+        # Generate sample data for related fields
+        json_data = {}
+        for field in fields_regular:
+            
+            if field.name == "id" and include_id:
+                #  Save field id
+                json_data[field.name] = self.__get_registers__()[0].id
+            else:
+            
+                # Get field data type
+                field_type = field.get_internal_type()
+                field_data = self.fields_types.get (field_type, None)
+                
+                if not field_data:
+                    raise Exception (f"Field type '{field_type}' not found, and auto_generate_data is True") 
+                
+                # Save field sample data
+                json_data[field.name] = field_data
+                
+        # Generale sample data for related fields
+        for field in fields_related:
+            
+            related_model = related_models[field.name]
+            related_registers = related_model.objects.all()
+            
+            # Validate related registers
+            if len(related_registers) == 0:
+                raise Exception (f"Related registers for '{field.name}' not found")
+            
+            # Save related register id
+            json_data[field.name] = related_registers[0].id
+            
+        return json_data
+    
     def setUp (self):
         """ Setup headers and auto generate data """
         
@@ -62,6 +113,7 @@ class BaseTestApi (TestCase):
             "UUIDField": "123e4567-e89b-12d3-a456-426614174000",
             "GenericIPAddressField": "192.168.1.254",
             "JSONField": json.dumps({"test": "test"}),
+            "AutoField": 1,
         }
                 
         if auto_generate_data:
@@ -96,8 +148,7 @@ class BaseTestApi (TestCase):
             token=self.__get_token__()
         )
         token.save()
-        self.client.defaults["HTTP_token"] = self.__get_token__()
-        
+        self.client.defaults["HTTP_token"] = self.__get_token__()     
     
     def base_invalid_token (self, method:str="get"):
         """ Test invalid token
@@ -224,40 +275,8 @@ class BaseTestApi (TestCase):
     def base_post (self): 
         """ Test add new register to model """
         
-        related_models = self.__get_related_models__()
-        
-        # Get model fields 
         model = self.__get_model__()
-        fields_regular = get_model_fields(model)
-        fields_all =  get_model_fields(model, related_fields=True)
-        fields_related = list(set(fields_all) - set(fields_regular))
-        
-        # Generate sample data for related fields
-        json_data = {}
-        for field in fields_regular:
-            
-            # Get field data type
-            field_type = field.get_internal_type()
-            field_data = self.fields_types.get (field_type, None)
-            
-            if not field_data:
-                raise Exception (f"Field type '{field_type}' not found, and auto_generate_data is True") 
-            
-            # Save field sample data
-            json_data[field.name] = field_data
-            
-        # Generale sample data for related fields
-        for field in fields_related:
-            
-            related_model =  related_models[field.name]
-            related_registers = related_model.objects.all()
-            
-            # Validate related registers
-            if len(related_registers) == 0:
-                raise Exception (f"Related registers for '{field.name}' not found")
-            
-            # Save related register id
-            json_data[field.name] = related_registers[0].id
+        json_data = self.__get_request_data__()
             
         response = self.client.post(
             self.__get_full_api__(),
@@ -291,5 +310,46 @@ class BaseTestApi (TestCase):
         self.assertIn ("Field", response_json['message'])
         self.assertIn ("is required", response_json['message'])
         self.assertEqual(len(response_json["data"]), 0)
+    
+    def base_put (self): 
+        """ Test add new register to model """
         
+        model = self.__get_model__()
+        id = self.__get_registers__()[0].id
+        fields_regular = get_model_fields(self.__get_model__(), related_fields=False)
+        json_data = self.__get_request_data__(include_id=True)
+            
+        response = self.client.put(
+            self.__get_full_api__(),
+            json.dumps(json_data),
+            content_type="application/json"
+        )
+        response_json = response.json()
+        
+        # Get and validate register created
+        register_updated = model.objects.filter(id=id)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json['status'], 'ok')
+        self.assertEqual(response_json['message'], 'Register updated')
+        
+        # Validate register data
+        for field in fields_regular:
+            self.assertEqual(getattr(register_updated[0], field.name), json_data[field.name])
+            
+    def base_put_missing_fields (self):
+        """ Test add new register to model, with missing fields """
+                    
+        response = self.client.put(
+            self.__get_full_api__(),
+            json.dumps({}),
+            content_type="application/json"
+        )
+        response_json = response.json()
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_json['status'], 'error')
+        self.assertIn ("Field", response_json['message'])
+        self.assertIn ("is required", response_json['message'])
+        self.assertEqual(len(response_json["data"]), 0)
         

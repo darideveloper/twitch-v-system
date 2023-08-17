@@ -18,6 +18,9 @@ class TestBotsView (BaseTestApi):
         
     def test_invalid_token_delete (self):
         self.base_invalid_token ("delete")
+        
+    def test_invalid_token_delete (self):
+        self.base_invalid_token ("put")
     
     def test_disable (self): 
         self.base_disable ()
@@ -30,3 +33,9 @@ class TestBotsView (BaseTestApi):
   
     def test_get (self):
         self.base_get ()
+        
+    def test_put (self):
+        self.base_put ()
+
+    def test_put_missing_fields (self):
+        self.base_put_missing_fields ()
