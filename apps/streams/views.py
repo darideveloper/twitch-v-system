@@ -1,10 +1,10 @@
 from django.http import JsonResponse
-from core.views import BaseJsonGetDisableView
+from core.views import BaseDisableView
 from streams import models
 from core.decorators import validate_token
 from django.utils import timezone
 
-class CurrentStreams (BaseJsonGetDisableView): 
+class CurrentStreams (BaseDisableView): 
     
     model = models.Stream
     

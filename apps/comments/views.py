@@ -1,19 +1,19 @@
-from core.views import BaseJsonGetView, BaseJsonGetDisableView, BaseJsonPostView
+from core.views import BaseGetView, BaseDisableView, BasePostView
 from comments import models
 
-class Bots (BaseJsonGetDisableView):
+class Bots (BaseGetView, BaseDisableView):
     model = models.Bot     
     
-class Comments (BaseJsonGetView):
+class Comments (BaseGetView):
     model = models.Comment
     
-class Mods (BaseJsonGetView):
+class Mods (BaseGetView):
     model = models.Mod
     
-class CommentsPhantom (BaseJsonGetView):
+class CommentsPhantom (BaseGetView):
     model = models.Comment
     
-class CommentsHistory (BaseJsonPostView):
+class CommentsHistory (BasePostView):
     model = models.CommentHistory
     exclude_fields = ['datetime']
     foreign_fields = {

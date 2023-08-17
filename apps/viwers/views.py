@@ -1,5 +1,5 @@
-from core.views import BaseJsonGetDisableView
+from core.views import BaseGetView, BasePutView, BaseDisableView
 from viwers import models
 
-class Bots (BaseJsonGetDisableView):
-    model = models.Bot     
+class Bots (BaseGetView, BasePutView, BaseDisableView):
+    model = models.Bot

@@ -11,14 +11,86 @@ def redirect_admin (request):
     # Redirect to admin page
     return redirect('/admin/') 
 
-class BaseJsonGetView (View):
-    """ Get data from model and return as json
+class Base (View):
+    """ Bese template for endpoints
     """
-    
+
     model = None
+    exclude_fields = []
+    foreign_fields = {}
     
+    def get_model (self):
+        return self.model
+        
     def get_data (self):
         return self.model.objects.all()
+    
+    def get_exclude_fields (self):
+        return self.exclude_fields
+    
+    def get_foreign_fields (self):
+        return self.foreign_fields
+    
+    def __get_comming_data__ (self, body:object, fields:list) -> dict:
+        """ Validate if fields exists in json data
+
+        Args:
+            body (object): request body with json data
+            fields (list): list of fields to validate
+
+        Returns:
+            dict: 
+                status (str): status of the json validation
+                message (str): message of the json validation
+                data (dict): data from json
+        """
+        
+        # Try to load json
+        try:
+            data = json.loads(body)
+        except:
+            return {
+                'status': 'error',
+                'message': 'Invalid json',
+                'data': []
+            }
+        
+        exclude_fields = self.get_exclude_fields()
+        foreign_fields = self.get_foreign_fields()
+        
+         # Validate all fields in data
+        for field in fields:
+            
+            if field.name in exclude_fields:
+                continue
+            
+            # Validate if fields exist
+            if field.name not in data:
+                return {
+                    'status': 'error',
+                    'message': f'Field {field.name} is required',
+                    'data': []
+                }
+                
+            # Validate foreign fields
+            if field.name in foreign_fields.keys():
+                
+                related_register = foreign_fields[field.name].objects.filter(id=data[field.name])
+                                
+                if related_register.exists():
+                    data[field.name] = related_register.first()
+                else:
+                    return {
+                        'status': 'error',
+                        'message': f'Field {field.name} is not valid',
+                        'data': []
+                    }
+        
+        return data
+    
+class BaseGetView (Base):
+    """ Get data from model and return as json
+    """
     
     @validate_token
     def get (self, request):
@@ -39,10 +111,9 @@ class BaseJsonGetView (View):
             'message': 'Data found',
             'data': data_list
         })
-    
-
+        
 @method_decorator(csrf_exempt, name='dispatch')
-class BaseJsonDisableView (View):
+class BaseDisableView (Base):
     """ Disable register from model
     """
     
@@ -82,62 +153,23 @@ class BaseJsonDisableView (View):
         })
 
 @method_decorator(csrf_exempt, name='dispatch')
-class BaseJsonPostView (View):
+class BasePostView (Base):
     """ Create new register
     """
-    
-    exclude_fields = []
-    foreign_fields = {}
-    
-    def get_exclude_fields (self):
-        return self.exclude_fields
     
     @validate_token
     def post (self, request):
         
-        exclude_fields = self.get_exclude_fields()
-        fields = get_model_fields(self.model, related_fields=True)
-                
-        # Try to load json
-        try:
-            data = json.loads(request.body)
-        except:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Invalid json',
-                'data': []
-            }, status=400)
+        model = self.get_model()
+        fields = get_model_fields(model, related_fields=True)
         
-        # Validate all fields in data
-        for field in fields:
-            
-            if field.name in exclude_fields:
-                continue
-            
-            # Validate if fields exist
-            if field.name not in data:
-                return JsonResponse({
-                    'status': 'error',
-                    'message': f'Field {field.name} is required',
-                    'data': []
-                }, status=400)
-                
-            # Validate foreign fields
-            if field.name in self.foreign_fields.keys():
-                
-                related_register = self.foreign_fields[field.name].objects.filter(id=data[field.name])
-                                
-                if related_register.exists():
-                    data[field.name] = related_register.first()
-                else:
-                    return JsonResponse({
-                        'status': 'error',
-                        'message': f'Field {field.name} is not valid',
-                        'data': []
-                    }, status=400)
+        # Validate json contents
+        data_formatted = self.__get_comming_data__(request.body, fields)
+        if "status" in data_formatted and data_formatted["status"] == "error":
+            return JsonResponse(data_formatted, status=400)
     
         # Create new register
-        register = self.model(**data)
+        register = model(**data_formatted)
         register.save()
         
         # Return response
@@ -149,24 +181,39 @@ class BaseJsonPostView (View):
             },
         })
         
-class BaseJsonGetPostView (BaseJsonGetView, BaseJsonPostView):
-    """ Get data from model, return as json
-        and create new register
+@method_decorator(csrf_exempt, name='dispatch')
+class BasePutView (Base):
+    """ Create new register
     """
     
-    pass
-
-class BaseJsonGetDisableView (BaseJsonGetView, BaseJsonDisableView):
-    """ Get data from model, return as json
-        and disable register
-    """
+    @validate_token
+    def put (self, request):
+        
+        model = self.get_model()
+        fields = get_model_fields(model, related_fields=True, get_id=True)
+        
+        # Validate json contents
+        data_formatted = self.__get_comming_data__(request.body, fields)
+        if "status" in data_formatted and data_formatted["status"] == "error":
+            return JsonResponse(data_formatted, status=400)
     
-    pass
-
-class BaseJsonGetPostDisableView (BaseJsonGetView, BaseJsonPostView, BaseJsonDisableView):
-    """ Get data from model, return as json
-        create new register
-        and disable register
-    """
-    
-    pass
+        # Create new register
+        register = model.objects.filter(id=data_formatted["id"])
+        if not register.exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Register not found',
+                'data': []
+            }, status=400)
+            
+        register = register.first()
+        for key, value in data_formatted.items():
+            setattr(register, key, value)
+        register.save()
+        
+        # Return response
+        return JsonResponse({
+            'status': 'ok',
+            'message': 'Register updated',
+            'data': []
+        })
