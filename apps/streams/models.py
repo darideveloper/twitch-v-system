@@ -13,6 +13,8 @@ def get_now ():
 class Streamer (models.Model):
     auth_user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='Usuario de autenticación')
     twitch_user = models.CharField(max_length=50, verbose_name='Usuario de Twitch')
+    access_token = models.CharField(max_length=100, verbose_name='Token de acceso a Twitch', default="")
+    refresh_token = models.CharField(max_length=100, verbose_name='Token de actualización de Twitch', default="")
     
     def __str__ (self):
         return self.twitch_user

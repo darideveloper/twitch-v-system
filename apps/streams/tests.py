@@ -23,7 +23,9 @@ class TestStreams (BaseTestApi):
         
         self.streamer = streams_models.Streamer (
             auth_user=self.auth_user,
-            twitch_user="test_twitch_user"
+            twitch_user="test_twitch_user", 
+            access_token="test_access_token",
+            refresh_token="test_refresh_token",
         )
         self.streamer.save ()
         
@@ -85,6 +87,7 @@ class TestStreams (BaseTestApi):
         
         # Validate response
         self.assertEqual(response_json['data'][0]['streamer'], self.stream_now.streamer.twitch_user)
+        self.assertEqual(response_json['data'][0]['access_token'], self.stream_now.streamer.access_token)
         self.assertEqual(response_json['data'][0]['date'], self.stream_now.date.strftime("%Y-%m-%d"))
         self.assertEqual(response_json['data'][0]['start_time'][0:8], self.stream_now.start_time.strftime("%H:%M:%S"))
         self.assertEqual(response_json['data'][0]['end_time'][0:8], self.stream_now.end_time.strftime("%H:%M:%S"))

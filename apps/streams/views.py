@@ -26,6 +26,7 @@ class CurrentStreams (BaseDisableView):
         for stream in streams:
             streamer = stramers.get(id=stream['streamer_id'])
             stream['streamer'] = streamer.twitch_user
+            stream['access_token'] = streamer.access_token
             
         # Remove unnecesary fields
         extra_fields = ['streamer_id']
