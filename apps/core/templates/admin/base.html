@@ -1,6 +1,11 @@
 {% extends 'admin/base.html' %}
 {% load static %}
 
+{% block userlinks %}
+<a href="/streams/update-token/" target="_blank">UPDATE TOKEN</a>
+{{ block.super }}
+{% endblock %}
+
 {% block extrastyle %}
 {{ block.super }}
 <style>
@@ -17,6 +22,10 @@
   *:focus {
     outline: none;
     border: 2px solid var(--primary) !important;
+  }
+
+  #user-tools a[href="/"] {
+    display: none;
   }
 </style>
 {% endblock %}

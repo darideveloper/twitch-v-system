@@ -2,6 +2,7 @@ from streams import models as streams_models
 from core.tests import BaseTestApi
 from django.contrib.auth.models import User
 from django.utils import timezone
+from streams import models as streams_models
 
 API_BASE = "streams"
 TOKEN = "token123*"
@@ -91,3 +92,42 @@ class TestStreams (BaseTestApi):
         self.assertEqual(response_json['data'][0]['date'], self.stream_now.date.strftime("%Y-%m-%d"))
         self.assertEqual(response_json['data'][0]['start_time'][0:8], self.stream_now.start_time.strftime("%H:%M:%S"))
         self.assertEqual(response_json['data'][0]['end_time'][0:8], self.stream_now.end_time.strftime("%H:%M:%S"))
+        
+class TestUpdateToken (BaseTestApi):
+    
+    api_base = API_BASE
+    endpoint = "update-token"
+    
+    def setUp (self): 
+            
+        # Create users
+        self.auth_user = User.objects.create_user (
+            username="test_user",
+            email="", 
+            password="test_password"
+        )
+        self.streamer = streams_models.Streamer (
+            auth_user = self.auth_user,
+            twitch_user="test_twitch_user",            
+        )
+        
+    def test_redirect (self): 
+        """ Test redirect to twitch login """
+        
+        response = self.client.get(self.__get_full_api__())
+        self.assertEqual(response.status_code, 302)
+        
+    def test_invalid_code (self): 
+        """ Test invalid confirmation code from twitch """
+        
+        endpoint = f"{self.__get_full_api__()}?code=invalid_code"
+        response = self.client.get(endpoint)
+        response_json = response.json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json['status'], 'error')
+        self.assertIn('Error getting token', response_json['message'])
+        self.assertEqual(response_json['data'], [])
+        
+        
+        

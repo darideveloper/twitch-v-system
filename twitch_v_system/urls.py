@@ -8,11 +8,12 @@ from apps.core import views as core_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # redirect to admin page if access to the root
+    # redirects
     path('', core_views.redirect_admin, name='redirect_admin'),
     
     # add apps urls
     path('comments/', include(comments_urls)),
     path('streams/', include(streams_urls)), 
     path('viwers/', include(viwers_urls)), 
+    
 ]

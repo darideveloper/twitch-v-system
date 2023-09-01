@@ -11,6 +11,10 @@ def redirect_admin (request):
     # Redirect to admin page
     return redirect('/admin/') 
 
+# def redirect_login (request):
+#     # Redirect update-token
+#     return redirect('/streams/update-token/')
+
 class Base (View):
     """ Bese template for endpoints
     """
